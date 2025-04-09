@@ -354,9 +354,13 @@ h2 {
     .social-icons a {
         font-size: 27px;
     }
+    .left-cadastro-image{
+        display: none;
+    }
+    
 }
 
-@media (max-width: 480px) {
+@media (max-width: 319px) {
     .card-cadastro > h1 {
         font-size: 20px;
     }
@@ -371,10 +375,13 @@ h2 {
     }
 
     .switch-buttons {
-        width: 150px;
+        width: max-content;
     }
 
     .switch-buttons span {
         font-size: 12px;
+    }
+    .left-cadastro-image{
+        display: none;
     }
 }

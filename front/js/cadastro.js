@@ -54,223 +54,156 @@ document.addEventListener('DOMContentLoaded', () => {
 document.querySelector("form").noValidate = true;
    
 
-
-const showAlert = (message) => {
-    const alertBox = document.getElementById('alertBox')
-    const alertMessage = document.getElementById('alertMessage')
-    alertMessage.textContent = message
-    alertBox.classList.remove('hidden')
-
-    const alertOkButton = document.getElementById('alertOkButton')
-    alertOkButton.onclick = () => {
-        closeAlert() 
-    }
-}
-
-function closeAlert() {
-    const alertBox = document.getElementById('alertBox')
-    alertBox.classList.add('hidden')
-}
-
 // cadastro
-document.getElementById('cadastroForm').addEventListener('submit', (event) => {
-    event.preventDefault();  
-
-    const nome = document.getElementById('nome').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const senha = document.getElementById('senha').value.trim();
-    const senhaConfirm = document.getElementById('senhaConfirm').value.trim();
-
+document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById('cadastroForm');
+    const nomeInput = document.getElementById('nome');
+    const emailInput = document.getElementById('email');
+    const senhaInput = document.getElementById('senha');
+    const senhaConfirmInput = document.getElementById('senhaConfirm');
+    const nomeError = document.getElementById('nomeError');
+    const emailError = document.getElementById('emailError');
+    const senhaError = document.getElementById('senhaError');
+    const senhaConfirmError = document.getElementById('senhaConfirmError');
+    const passwordRules = document.getElementById('passwordRules');
   
-    if (senha !== senhaConfirm) {
-        showAlert("As senhas não coincidem.");
-        return;
+    const alertBox = document.getElementById('alertBox');
+    const alertMessage = document.getElementById('alertMessage');
+    const alertOkButton = document.getElementById('alertOkButton');
+  
+    // Mostrar alertBox
+    function mostrarAlerta(msg) {
+      alertBox.classList.remove('hidden');
+      alertMessage.innerHTML = msg;
+      alertOkButton.onclick = () => {
+        alertBox.classList.add('hidden');
+      };
     }
-
-    const auth = firebase.auth();
-
-    auth.createUserWithEmailAndPassword(email, senha)
-        .then((userCredential) => {
-            const user = userCredential.user;
-            const foto = "https://gabrielaccorsi.github.io/Projeto-SI/imagens/entrar.png"; 
-
-            firebase.database().ref('users/' + user.uid).set({
-                displayName: nome || user.displayName || 'Nome não definido',
-                email: email,
-                tipo: email.endsWith('@admin.com') ? 'adm' : 'aluno',
-                photoURL: foto
-            }).then(() => {
-                window.location.href = "personalizacao.html";  
-            });
-        })
-        .catch((error) => {
-            const errorCode = error.code;
-            if (errorCode === 'auth/email-already-in-use') {
-                showAlert("O e-mail inserido já está cadastrado.");
-            } else {
-                showAlert("Erro ao cadastrar usuário: " + error.message);
-            }
-        });
-});
-
-
-
-// validar nome
-document.addEventListener("DOMContentLoaded", () => {
-    const nomeInput = document.getElementById('nome')
-    const nomeError = document.getElementById('nomeError') 
-
+  
+    // Validações específicas
     const validateNome = () => {
-        const nome = nomeInput.value.trim()
-
-        if (nome === '') {
-            nomeError.textContent = 'Preencha o campo.'
-            nomeError.style.color = 'red'
-        } else if (nome.length < 3) {
-            nomeError.textContent = 'O nome deve ter no mínimo 3 caracteres.'
-            nomeError.style.color = 'red'
-        } else if (/\d/.test(nome)) {
-            nomeError.textContent = 'Números não são permitidos.'
-            nomeError.style.color = 'red'
-        } else if (/[^a-zA-ZáéíóúãõâêîôûàèìòùäëïöüçÇ\s]/.test(nome)) {
-            nomeError.textContent = 'Caracteres especiais não são permitidos.'
-            nomeError.style.color = 'red'
-        } else {
-            nomeError.textContent = ''
-        }
-    }
-
-    nomeInput.addEventListener('blur', validateNome)
-
-    nomeInput.addEventListener('input', () => {
-        if (nomeInput.value.trim() !== '') {
-            nomeError.textContent = ''
-        }
-
-        validateNome()
-    })
-})
-
-// validar email
-document.addEventListener("DOMContentLoaded", () => {
-    const emailInput = document.getElementById('email')
-    const emailError = document.getElementById('emailError') 
-
+      const nome = nomeInput.value.trim();
+      if (nome === '') {
+        nomeError.textContent = 'Preencha o campo.';
+      } else if (nome.length < 3) {
+        nomeError.textContent = 'O nome deve ter no mínimo 3 caracteres.';
+      } else if (/\d/.test(nome)) {
+        nomeError.textContent = 'Números não são permitidos.';
+      } else if (/[^a-zA-ZáéíóúãõâêîôûàèìòùäëïöüçÇ\s]/.test(nome)) {
+        nomeError.textContent = 'Caracteres especiais não são permitidos.';
+      } else {
+        nomeError.textContent = '';
+      }
+    };
+  
     const validateEmail = () => {
-        const email = emailInput.value.trim()
-        let errorMessage = ''
-
-        if (email === '') {
-            errorMessage = 'Preencha o campo.'
-        }
-
-        if (errorMessage) {
-            emailError.textContent = errorMessage
-            emailError.style.color = 'red'
-        } else {
-            emailError.textContent = ''
-        }
-    }
-
-    emailInput.addEventListener('input', () => {
-        if (emailInput.value.trim() !== '') {
-            emailError.textContent = ''
-        }
-        validateEmail()
-    })
-
-    emailInput.addEventListener('blur', () => {
-        const email = emailInput.value.trim()
-        if (email !== '' && (!email.includes('@') || !email.includes('.'))) {
-            emailError.innerHTML = 'O e-mail deve conter "@" seguido por <br>  um domínio. (Ex: devlab@gmail.com)'
-            emailError.style.color = 'red'
-        }
-    })
-})
-
-// validar senha
-document.addEventListener("DOMContentLoaded", () => {
-    const senhaInput = document.getElementById('senha')
-    const passwordRules = document.getElementById('passwordRules')
-    const senhaError = document.getElementById('senhaError')
-    passwordRules.style.display = 'none'
-
-    const validateSenha = () => {
-        const senha = senhaInput.value.trim()
-
-        if (senha === '') {
-            senhaError.innerHTML = 'Preencha o campo.'
-            senhaError.style.color = 'red'
-            passwordRules.style.display = 'none'
-        } else {
-            senhaError.textContent = ''
-            passwordRules.style.display = 'block'
-        }
-
-        rules.forEach((rule) => {
-            const ruleElement = document.getElementById(rule.id)
-            if (rule.regex.test(senha)) {
-                ruleElement.classList.remove('invalid')
-                ruleElement.classList.add('valid')
-            } else {
-                ruleElement.classList.remove('valid')
-                ruleElement.classList.add('invalid')
-            }
-        })
-    }
-
+      const email = emailInput.value.trim();
+      let errorMessage = '';
+  
+      if (email === '') {
+        errorMessage = 'Preencha o campo.';
+      } else if (!email.includes('@') || !email.includes('.')) {
+        errorMessage = 'O e-mail deve conter "@" e domínio. Ex: devlab@gmail.com';
+      }
+  
+      emailError.textContent = errorMessage;
+    };
+  
     const rules = [
-        { id: 'ruleMinLength', text: '* Mínimo de 8 caracteres', regex: /.{8,}/ },
-        { id: 'ruleSpecialChar', text: '* Caractere especial', regex: /[!@#$%^&*(),.?":{}|<>]/ },
-        { id: 'ruleUpperCase', text: '* Letra maiúscula', regex: /[A-Z]/ },
-        { id: 'ruleLowerCase', text: '* Letra minúscula', regex: /[a-z]/ },
-        { id: 'ruleNumeric', text: '* Um número', regex: /\d/ }
-    ]
-
-    passwordRules.innerHTML = rules
-        .map(rule => `<p id="${rule.id}" class="invalid">${rule.text}</p>`)
-        .join('')
-
-    senhaInput.addEventListener('focus', () => {
-        if (senhaInput.value !== '') {
-            passwordRules.style.display = 'block'
-        }
-    })
-
-    senhaInput.addEventListener('input', validateSenha)
-
-    senhaInput.addEventListener('blur', () => {
-        passwordRules.style.display = 'none'
-    })
-})
-
-// validar confirmação de senha
-document.addEventListener("DOMContentLoaded", () => {
-    const senhaConfirmInput = document.getElementById('senhaConfirm')
-    const senhaConfirmError = document.getElementById('senhaConfirmError') 
-
-    const validateSenhaConfirm = () => {
-        const senha = document.getElementById('senha').value.trim()
-        const senhaConfirm = senhaConfirmInput.value.trim()
-
-        if (senhaConfirm === '') {
-            senhaConfirmError.innerHTML = 'Preencha o campo.'
-            senhaConfirmError.style.color = 'red'
-        } else if (senha !== senhaConfirm) {
-            senhaConfirmError.innerHTML = 'As senhas não coincidem.'
-            senhaConfirmError.style.color = 'red'
+      { id: 'ruleMinLength', text: '* Mínimo de 8 caracteres', regex: /.{8,}/ },
+      { id: 'ruleSpecialChar', text: '* Caractere especial', regex: /[!@#$%^&*(),.?":{}|<>]/ },
+      { id: 'ruleUpperCase', text: '* Letra maiúscula', regex: /[A-Z]/ },
+      { id: 'ruleLowerCase', text: '* Letra minúscula', regex: /[a-z]/ },
+      { id: 'ruleNumeric', text: '* Um número', regex: /\d/ }
+    ];
+  
+    passwordRules.innerHTML = rules.map(rule => `<p id="${rule.id}" class="invalid">${rule.text}</p>`).join('');
+  
+    const validateSenha = () => {
+      const senha = senhaInput.value.trim();
+  
+      if (senha === '') {
+        senhaError.textContent = 'Preencha o campo.';
+        passwordRules.style.display = 'none';
+      } else {
+        senhaError.textContent = '';
+        passwordRules.style.display = 'block';
+      }
+  
+      rules.forEach((rule) => {
+        const el = document.getElementById(rule.id);
+        if (rule.regex.test(senha)) {
+          el.classList.add('valid');
+          el.classList.remove('invalid');
         } else {
-            senhaConfirmError.innerHTML = ''
+          el.classList.add('invalid');
+          el.classList.remove('valid');
         }
-    }
-
-    senhaConfirmInput.addEventListener('blur', validateSenhaConfirm)
-
-    senhaConfirmInput.addEventListener('input', () => {
-        if (senhaConfirmInput.value.trim() !== '') {
-            senhaConfirmError.textContent = ''
+      });
+    };
+  
+    const validateSenhaConfirm = () => {
+      const senha = senhaInput.value.trim();
+      const confirm = senhaConfirmInput.value.trim();
+  
+      if (confirm === '') {
+        senhaConfirmError.textContent = 'Preencha o campo.';
+      } else if (senha !== confirm) {
+        senhaConfirmError.textContent = 'As senhas não coincidem.';
+      } else {
+        senhaConfirmError.textContent = '';
+      }
+    };
+  
+    // Eventos de input
+    nomeInput.addEventListener('blur', validateNome);
+    emailInput.addEventListener('blur', validateEmail);
+    senhaInput.addEventListener('input', validateSenha);
+    senhaConfirmInput.addEventListener('input', validateSenhaConfirm);
+    senhaInput.addEventListener('focus', () => passwordRules.style.display = 'block');
+    senhaInput.addEventListener('blur', () => passwordRules.style.display = 'none');
+  
+    // Enviar formulário
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+  
+      const nome = nomeInput.value.trim();
+      const email = emailInput.value.trim();
+      const senha = senhaInput.value.trim();
+      const senhaConfirm = senhaConfirmInput.value.trim();
+  
+      // Executar as validações novamente
+      validateNome();
+      validateEmail();
+      validateSenha();
+      validateSenhaConfirm();
+  
+      const hasErrors = nomeError.textContent || emailError.textContent || senhaError.textContent || senhaConfirmError.textContent;
+  
+      if (hasErrors) {
+        mostrarAlerta('Corrija os erros nos campos antes de continuar.');
+        return;
+      }
+  
+      try {
+        const response = await fetch('http://127.0.0.1:3000/user/create', {
+          method: 'POST',
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name:nome, email,password:senha})
+        });
+  
+        const data = await response.json();
+  
+        if (response.ok) {
+          localStorage.setItem('auth', JSON.stringify(data));
+          window.location.href = 'pagina_aluno.html';
+        } else {
+          mostrarAlerta(data.mensagem || 'Erro ao cadastrar. Tente novamente.');
         }
-
-        validateSenhaConfirm()
-    })
-})
+      } catch (err) {
+        console.error(err);
+        mostrarAlerta('Erro na comunicação com o servidor.');
+      }
+    });
+  });
+  

@@ -5,11 +5,18 @@ const userController = {
     try {
       const { name, username, email, password, avatar, background } = req.body;
       if (!name || !email || !password ) {
-        res.status(400).send({ messege: "Submit all filds for registration" });
+        return res.status(400).send({ messege: "Submit all filds for registration" });
       }
+   
+      const existe = await userService.findByEmailService( email );
+      if (existe) {
+        return res.status(409).json({ mensagem: 'Usuário já cadastrado.' });
+      }
+  
+      const tipo = email.endsWith('@admin.com') ? 'adm' : 'aluno';
 
-      const user = await userService.createService(req.body);
-
+      const body = {name, username, email, password, avatar, background, tipo};
+      const user = await userService.createService(body);
       if (!user) {
         return res.status(400).send({ message: "Error creating user" });
       }
@@ -23,6 +30,7 @@ const userController = {
           email,
           avatar,
           background,
+          tipo,
         },
       });
     } catch (err) {

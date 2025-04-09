@@ -9,11 +9,11 @@
     <link rel="stylesheet" href="css/profile-dropdown-menu.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
     <link rel="stylesheet" href="css/adm.css">
-    <!-- firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="js/firebase_conf.js"></script>
+
     <title>Página do ADM</title>
   
     </head>
@@ -137,7 +137,6 @@
             profileImg.style.backgroundImage = `url('${userPhotoURL}')`
         }
 
-        const dbRef = firebase.database().ref('users/' + user.uid)
         dbRef.once('value', snapshot => {
             const userData = snapshot.val()
             if (userData) {
@@ -163,32 +162,8 @@
         // confirmar a exclusão
         const confirmarExclusao = () => {
         console.log("Iniciando a exclusão da conta...")
-
-        const user = firebase.auth().currentUser
-
-        if (user) {
-        const userId = user.uid
-
-        firebase.database().ref('users/' + userId).remove()
-            .then(() => {
-                return user.delete();
-            })
-            .then(() => {
-                showAlert("Conta excluída com sucesso!")
-                fecharModal()
-            })
-            .catch((error) => {
-                if (error.code === 'auth/requires-recent-login') {
-                    showAlert("Por favor, faça login novamente para excluir sua conta.")
-                } else {
-                    showAlert("Erro ao excluir a conta. Tente novamente.")
-                }
-                fecharModal()
-            })
-        } else {
-           showAlert("Erro: Usuário não encontrado.")
-           fecharModal()}}
-
+        }
+        
         // sucesso ou erro
         const showAlert = (message) => {
         const alertBox = document.getElementById("alertBox")

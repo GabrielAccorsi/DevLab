@@ -249,10 +249,12 @@ textarea {
         .nav_logo img {
             width: 30px;
         }
-    
+        .left-login-image{
+            display: none;
+        }
 }
 
-@media only screen and (max-width: 600px) {
+@media only screen and (max-width: 319px) {
     .main-login {
         flex-direction: column;
     }
@@ -282,5 +284,8 @@ textarea {
     .navbar li {
         float: none;
         width: 100%;
+    }
+    .left-login-image{
+        display: none;
     }
 }

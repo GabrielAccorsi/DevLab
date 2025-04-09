@@ -365,6 +365,10 @@ h2 {
     .social-icons a {
         font-size: 27px;
     }
+
+    .left-login-image{
+        display: none;
+    }
 }
 
 @media (max-width: 480px) {
@@ -387,5 +391,9 @@ h2 {
 
     .switch-buttons span {
         font-size: 12px;
+    }
+    
+    .left-login-image{
+        display: none;
     }
 }
