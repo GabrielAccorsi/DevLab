@@ -1,6 +1,6 @@
 async function carregarNavbar() {
   const auth = JSON.parse(localStorage.getItem("auth"));
-  const token = auth?.token;
+  const token = auth?.token|| auth;
 
   fetch("navbar.html")
     .then((response) => response.text())
