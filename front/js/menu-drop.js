@@ -1,167 +1,91 @@
-// controlar o menu/navbar
-function carregarNavbar() {
-  firebase.auth().onAuthStateChanged((user) => {
-    fetch("navbar.html")
-      .then((response) => response.text())
-      .then((data) => {
-        document.getElementById("navbar").innerHTML = data;
-        inicializarMenuHamburger();
+async function carregarNavbar() {
+  const auth = JSON.parse(localStorage.getItem("auth"));
+  const token = auth?.token;
 
-        const profileDropdownList = document.querySelector(
-          ".profile-dropdown-list"
-        );
-        const btn = document.querySelector(".profile-dropdown-btn");
+  fetch("navbar.html")
+    .then((response) => response.text())
+    .then(async (data) => {
+      document.getElementById("navbar").innerHTML = data;
+      inicializarMenuHamburger();
 
-        if (user) {
-            profileDropdownList.classList.remove("active");
-            const nomeEntrar = document.getElementById("nome_entrar");
-    
-            const dbRef1 = firebase.database().ref("users/" + user.uid);
-            dbRef1.once("value", (snapshot) => {
-              const userData = snapshot.val();
-              const nameFromDb = userData?.nome;
-          
-              const userName =
-                nameFromDb || userData.displayName || user.displayName || user.email.split("@")[0]; 
-              const formattedUserName =
-                userName.charAt(0).toUpperCase() + userName.slice(1).toLowerCase();
-          
-              const maxLength = 8; // Limite de caracteres
-              let truncatedUserName =
-                formattedUserName.length > maxLength
-                  ? formattedUserName.slice(0, maxLength) 
-                  : formattedUserName;
-          
-              // Ajuste dinâmico do tamanho da fonte
-              const maxFontSize = 16; 
-              const minFontSize = 10; 
-              const containerWidth = nomeEntrar.offsetWidth; 
-          
-              let currentFontSize = maxFontSize;
-          
-             
-              while (
-                nomeEntrar.scrollWidth > containerWidth && 
-                currentFontSize > minFontSize
-              ) {
-                currentFontSize -= 1; 
-                nomeEntrar.style.fontSize = `${currentFontSize}px`;
-              }
-          
-              
-              if (nomeEntrar.scrollWidth > containerWidth) {
-                truncatedUserName = formattedUserName.slice(0, maxLength) + "...";
-              }
-          
-              
-              nomeEntrar.innerHTML = `${truncatedUserName} <i class="fa-solid fa-angle-down"></i>`;
-            });
+      const profileDropdownList = document.querySelector(".profile-dropdown-list");
+      const btn = document.querySelector(".profile-dropdown-btn");
+      const nomeEntrar = document.getElementById("nome_entrar");
 
-         
-            
-            dbRef1.once("value", (snapshot) => {
-              const userData = snapshot.val();
-              const userPhotoURL = userData?.photoURL || user?.photoURL || "URL_PADRAO_AQUI";
-            
-              if (userPhotoURL) {
-                document.querySelector(
-                  ".profile-img"
-                ).style.backgroundImage = `url('${userPhotoURL}')`;
-              } else {
-                console.warn("Foto do usuário não disponível, usando padrão.");
-                document.querySelector(
-                  ".profile-img"
-                ).style.backgroundImage = "url('URL_PADRAO_AQUI')";
-              }
-            });
-            
-          // mostrar/ocultar menu
-          btn.addEventListener("click", () => {
-            profileDropdownList.classList.toggle("active");
-          });
+      if (!token) {
+      
+        nomeEntrar.innerHTML = `Entrar`;
+        btn.addEventListener("click", () => {
+          window.location.href = "login.html";
+        });
+        btn.querySelector(".profile-img").style.backgroundImage = `url('https://gabrielaccorsi.github.io/Projeto-SI/imagens/entrar.png')`;
+        return;
+      }
 
-          window.addEventListener("click", (e) => {
-            if (
-              !btn.contains(e.target) &&
-              !profileDropdownList.contains(e.target)
-            ) {
-              profileDropdownList.classList.remove("active");
-            }
-          });
+     
+      const response = await fetch("http://localhost:3000/user", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-          if (user.providerData && user.providerData.length > 0) {
-            const provider = user.providerData[0].providerId;
-            console.log("Login realizado com o provedor:", provider);
-          }
+      if (!response.ok) {
+        localStorage.removeItem("auth");
+        window.location.reload();
+        return;
+      }
 
-          // tipo de usuário
-          const dbRef = firebase.database().ref("users/" + user.uid);
-          dbRef.once("value", function (snapshot) {
-            const userData = snapshot.val();
-            const userType = userData ? userData.tipo : "aluno";
+      const {user} = await response.json();
 
-            // alterar o link da pagina contato se for adm, pra aparecer as mensagens
-            if (userType === "adm") {
-              document
-                .querySelector("#link-contato")
-                .setAttribute("href", "mensagens.html");
-            }
+      console.log(user);
 
-            // redirecionar perfil
-            if (userType === "aluno") {
-              document
-                .querySelector("#Perfil")
-                .addEventListener("click", function (event) {
-                  event.preventDefault();
-                  window.location.href = "pagina_aluno.html";
-                });
-            } else if (userType === "adm") {
-              document
-                .querySelector("#Perfil")
-                .addEventListener("click", function (event) {
-                  event.preventDefault();
-                  window.location.href = "pagina_adm.html";
-                });
-            }
-          });
+      let nome = user.name || user.username || user.email.split("@")[0];
+      nome = nome.charAt(0).toUpperCase() + nome.slice(1).toLowerCase();
+      if (nome.length > 8) nome = nome.slice(0, 8) + "...";
+      nomeEntrar.innerHTML = `${nome} <i class="fa-solid fa-angle-down"></i>`;
 
-          // logout
-          const exitItem = document.getElementById("Deslogar");
-          exitItem.addEventListener("click", function () {
-            firebase
-              .auth()
-              .signOut()
-              .then(function () {
-                window.location.href = "login.html";
-              })
-              .catch(function (error) {
-                console.error("Erro ao sair:", error);
-              });
-          });
-        } else {
-          // quando não tá logado
-          const nomeEntrar = document.getElementById("nome_entrar");
-          nomeEntrar.innerHTML = `Entrar`;
+      const foto = user.avatar || "https://gabrielaccorsi.github.io/Projeto-SI/imagens/entrar.png";
+      document.querySelector(".profile-img").style.backgroundImage = `url('${foto}')`;
 
-          const btn = document.querySelector(".profile-dropdown-btn");
-          btn.addEventListener("click", function () {
-            window.location.href = "login.html";
-          });
+  
 
-          document
-            .querySelector(".profile-dropdown-list")
-            .classList.remove("active");
 
-          // Define uma foto de perfil padrão quando o usuário não estiver logado
-          const profileImg = btn.querySelector(".profile-img");
-          const defaultImage =
-            "https://gabrielaccorsi.github.io/Projeto-SI/imagens/entrar.png";
-          profileImg.style.backgroundImage = `url('${defaultImage}')`;
+      btn.addEventListener("click", () => {
+        profileDropdownList.classList.toggle("active");
+      });
+      window.addEventListener("click", (e) => {
+        if (!btn.contains(e.target) && !profileDropdownList.contains(e.target)) {
+          profileDropdownList.classList.remove("active");
         }
-      })
-      .catch((error) => console.error("Erro ao carregar a navbar:", error));
-  });
+      });
+
+      // Tipo de usuário
+      const tipo = user.tipo || "aluno";
+      if (tipo === "adm") {
+        document.querySelector("#link-contato")?.setAttribute("href", "mensagens.html");
+      }
+
+      const perfilBtn = document.querySelector("#Perfil");
+      if (perfilBtn) {
+        perfilBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          window.location.href = tipo === "adm" ? "pagina_adm.html" : "pagina_aluno.html";
+        });
+      }
+
+      // Logout
+      const exitItem = document.getElementById("Deslogar");
+      if (exitItem) {
+        exitItem.addEventListener("click", () => {
+          localStorage.removeItem("auth");
+          window.location.reload();
+        });
+      }
+    })
+    .catch((error) => console.error("Erro ao carregar a navbar:", error));
 }
+
 
 // menu hambúrguer
 function inicializarMenuHamburger() {

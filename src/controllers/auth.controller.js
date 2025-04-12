@@ -17,8 +17,11 @@ const login = async (req, res) => {
     }
 
     const token = generateToken(user.id);
+    const userTipo = user.tipo;
+  
 
-    res.send({ token, user });
+
+    res.send({ token, userTipo});
   } catch (err) {
     res.status(500).send({ message: err.message });
   }

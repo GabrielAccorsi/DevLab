@@ -49,6 +49,10 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
+async function salvar(token) {
+  localStorage.setItem("auth", JSON.stringify(token));
+}
+
 // remover mensagens de erro padrão
 document.querySelector("form").noValidate = true;
 
@@ -80,13 +84,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
-      // Fazendo a requisição para a API
       const response = await fetch("http://127.0.0.1:3000/auth/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, senha }),
+        body: JSON.stringify({ email, password: senha }),
       });
 
       if (!response.ok) {
@@ -94,20 +97,21 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error(errorData.message || "Erro ao autenticar");
       }
 
-      const { token, user } = await response.json();
+      const { token, userTipo } = await response.json();
 
       console.log(token);
-      //se retornar token
-      if (token.ok == true) {
-        salvar(token);
-     
 
-      // Verifica o tipo de usuário e redireciona
-      if (user.tipo === "adm") {
+      if (token) {
+        localStorage.setItem("auth", JSON.stringify({ token }));
+      } else {
+        throw new Error("Token não recebido da API.");
+      }
+
+      if (userTipo === "adm") {
         window.location.href = "pagina_adm.html";
       } else {
         window.location.href = "pagina_aluno.html";
-      } } 
+      }
     } catch (error) {
       if (error.message === "Usuário não encontrado") {
         showError("Este email não está cadastrado. Verifique ou cadastre-se.");

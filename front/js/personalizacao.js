@@ -1,8 +1,13 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const userId = localStorage.getItem("userId");
 
-    if (userId) {
+    const auth = JSON.parse(localStorage.getItem("auth"));
+    const user = auth?.user;
+
+    console.log(user);
+
+    if (user.id) {
         // Usuário logado, carregar os dados
+        const userId = user.id;
         fetchUserData(userId);
     } else {
         alert("Usuário não autenticado. Redirecionando para o login.");
@@ -103,8 +108,8 @@ document.getElementById("personalizacaoForm").addEventListener("submit", async (
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                bio: bio,
-                fotoUrl: fotoUrl,
+                bio,
+                avatar: fotoUrl,
             }),
         });
 

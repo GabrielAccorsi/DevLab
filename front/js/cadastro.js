@@ -195,8 +195,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const data = await response.json();
   
         if (response.ok) {
-          localStorage.setItem('auth', JSON.stringify(data));
-          window.location.href = 'pagina_aluno.html';
+          localStorage.setItem('auth', JSON.stringify(data.token));
+          window.location.href = 'personalizacao.html';
         } else {
           mostrarAlerta(data.mensagem || 'Erro ao cadastrar. Tente novamente.');
         }

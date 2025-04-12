@@ -1,4 +1,5 @@
 import userService from "../services/user.service.js";
+import { generateToken } from "../services/auth.service.js";
 
 const userController = {
   create: async (req, res) => {
@@ -20,18 +21,11 @@ const userController = {
       if (!user) {
         return res.status(400).send({ message: "Error creating user" });
       }
+      const token = await generateToken(user.id);
 
       res.status(201).send({
         message: "User created successfuly",
-        user: {
-          id: user._id,
-          name,
-          username,
-          email,
-          avatar,
-          background,
-          tipo,
-        },
+        token,
       });
     } catch (err) {
       res.status(500).send({ message: err.message });
@@ -53,18 +47,16 @@ const userController = {
   },
   findById: async (req, res) => {
     try {
-        const { id } = req.params; 
-        const user = await userService.findByIdService(id); 
-    
-      res.send(user);
+        const user = req.user; 
+      res.send({user});
     } catch (err) {
       res.status(500).send({ message: err.message });
     }
   },
   update: async (req, res) => {
     try {
-      const { name, username, email, password, avatar, background } = req.body;
-      if (!name && !email && !password ) {
+      const { name, username, email, password, avatar, background , bio} = req.body;
+      if (!name && !username && avatar && background && bio) {
         return res.status(400).send({ message: "Submit at least one field for update" });
       }
 
@@ -80,7 +72,8 @@ const userController = {
         email,
         password,
         avatar,
-        background
+        background,
+        bio
       );
 
       res.send({ message: "User successfully updated" });

@@ -1,4 +1,5 @@
 import Users from "../database/user.database.js";
+import jwt from "jsonwebtoken";
 
 const loginService = (email) => {
   return Users.find(user => user.email === email);

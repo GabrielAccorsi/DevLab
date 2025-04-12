@@ -25,7 +25,7 @@ const findByIdService = async (id) => {
   return Users.find(user => user.id === parseInt(id));
 };
 
-const updateService = async (id, name, username, email, password, avatar, background) => {
+const updateService = async (id, name, username, email, password, avatar, background,bio) => {
   const index = Users.findIndex(user => user.id === parseInt(id));
 
   if (index !== -1) {
@@ -37,6 +37,7 @@ const updateService = async (id, name, username, email, password, avatar, backgr
       password,
       avatar,
       background,
+      bio,
     };
     return Users[index];
   }
