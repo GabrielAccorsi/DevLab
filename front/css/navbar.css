@@ -78,6 +78,9 @@ main {
     border-radius: 10px;
 }
 
+.nav_links a i {
+    margin-right: 8px; 
+}
 
 .hamburger-menu {
     display: none; 
