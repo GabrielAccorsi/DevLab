@@ -9,7 +9,7 @@ const app = express()
 app.use(cors({
     origin: "*"
 }))
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 app.use("/user",userRoutes)
 app.use("/auth",authRoutes)
 

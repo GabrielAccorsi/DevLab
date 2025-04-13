@@ -55,8 +55,8 @@ const userController = {
   },
   update: async (req, res) => {
     try {
-      const { name, username, email, password, avatar, background , bio} = req.body;
-      if (!name && !username && avatar && background && bio) {
+      const { avatar, background , bio} = req.body;
+      if (!avatar && !background && !bio) {
         return res.status(400).send({ message: "Submit at least one field for update" });
       }
 
@@ -67,14 +67,12 @@ const userController = {
 
       await userService.updateService(
         userId,
-        name,
-        username,
-        email,
-        password,
         avatar,
         background,
         bio
       );
+      const user = await userService.findByIdService(userId);
+      console.log(userId, user);
 
       res.send({ message: "User successfully updated" });
     } catch (err) {

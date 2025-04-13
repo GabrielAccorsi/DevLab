@@ -1,6 +1,6 @@
 async function carregarNavbar() {
   const auth = JSON.parse(localStorage.getItem("auth"));
-  const token = auth?.token|| auth;
+  const token = auth?.token || auth;
 
   fetch("navbar.html")
     .then((response) => response.text())
@@ -41,6 +41,7 @@ async function carregarNavbar() {
       console.log(user);
 
       let nome = user.name || user.username || user.email.split("@")[0];
+      nome = nome.split(" ")[0];
       nome = nome.charAt(0).toUpperCase() + nome.slice(1).toLowerCase();
       if (nome.length > 8) nome = nome.slice(0, 8) + "...";
       nomeEntrar.innerHTML = `${nome} <i class="fa-solid fa-angle-down"></i>`;
@@ -110,4 +111,4 @@ function inicializarMenuHamburger() {
 }
 
 // Inicializa a navbar ao carregar a página
-document.addEventListener("DOMContentLoaded", carregarNavbar);
+document.addEventListener("DOMContentLoaded", carregarNavbar, inicializarMenuHamburger) ;
