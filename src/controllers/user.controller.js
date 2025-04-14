@@ -79,6 +79,18 @@ const userController = {
       res.status(500).send({ message: err.message });
     }
   },
+  delete: async (req, res) => {
+    try {
+      const user = req.user; 
+      if (!user) {
+        return res.status(401).send({ message: "Unauthorized" });
+      }
+      await userService.deleteService(user.id);
+      
+    res.send({message: "User successfully deleted" });
+  } catch (err) {
+    res.status(500).send({ message: err.message });
+  }},
 };
 
 export default userController;

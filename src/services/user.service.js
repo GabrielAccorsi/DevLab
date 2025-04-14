@@ -8,6 +8,7 @@ const createService = async (body) => {
     id: Users.length + 1,
     ...body,
     password: hashedPassword, 
+    status: "ativo",
   };
   Users.push(newUser);
   return newUser;
@@ -38,6 +39,16 @@ const updateService = async (id, avatar, background, bio) => {
 
   return null;
 };
+const deleteService = async (id) => {
+  const index = Users.findIndex(user => user.id === parseInt(id));
+
+  if (index !== -1) {
+    Users[index].status = "inativo"; 
+    return Users[index];
+  }
+
+  return null;
+}
 
 
 const userService = {
@@ -46,6 +57,7 @@ const userService = {
   findByIdService,
   updateService,
   findByEmailService,
+  deleteService,
 };
 
 export default userService;

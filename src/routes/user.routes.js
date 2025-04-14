@@ -8,5 +8,6 @@ routes.post("/create",userController.create)
 routes.get("/all",userController.findAll)
 routes.get("/",authMiddleware,userController.findById)
 routes.patch("/",authMiddleware, userController.update)
+routes.patch("/delete",authMiddleware,userController.delete)
 
 export default routes
