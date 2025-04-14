@@ -29,6 +29,8 @@ export const authMiddleware = async (req, res, next) => {
 
     if (!user || !user.id) return res.status(401).send("Invalid Token");
 
+    if (user.status === "inativo") return res.status(401).send("User deleted");
+
     req.user = user; 
     next();
   } catch (err) {

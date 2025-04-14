@@ -1,10 +1,10 @@
 :root{
     --primary:#eeeeee;
-    --secondary:#2ec47e;
+    --secondary:#8DF7E2;
     --secondary-light: rgb(34,124,112,0.2);
     --secondary-light-2: rgb(127,183,126,0.1);
-    --white:#fff;
-    --black: #393e46;
+    --white:#F7F7F7;
+    --black: #1F1F1F;
 
     --shadow: 0px 2px 8px 0px var(--secondary-light)
 }

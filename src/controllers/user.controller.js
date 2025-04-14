@@ -1,29 +1,31 @@
 import userService from "../services/user.service.js";
+import { generateToken } from "../services/auth.service.js";
 
 const userController = {
   create: async (req, res) => {
     try {
       const { name, username, email, password, avatar, background } = req.body;
       if (!name || !email || !password ) {
-        res.status(400).send({ messege: "Submit all filds for registration" });
+        return res.status(400).send({ messege: "Submit all filds for registration" });
       }
+   
+      const existe = await userService.findByEmailService( email );
+      if (existe) {
+        return res.status(409).json({ mensagem: 'Usuário já cadastrado.' });
+      }
+  
+      const tipo = email.endsWith('@admin.com') ? 'adm' : 'aluno';
 
-      const user = await userService.createService(req.body);
-
+      const body = {name, username, email, password, avatar, background, tipo};
+      const user = await userService.createService(body);
       if (!user) {
         return res.status(400).send({ message: "Error creating user" });
       }
+      const token = await generateToken(user.id);
 
       res.status(201).send({
         message: "User created successfuly",
-        user: {
-          id: user._id,
-          name,
-          username,
-          email,
-          avatar,
-          background,
-        },
+        token,
       });
     } catch (err) {
       res.status(500).send({ message: err.message });
@@ -45,18 +47,16 @@ const userController = {
   },
   findById: async (req, res) => {
     try {
-        const { id } = req.params; 
-        const user = await userService.findByIdService(id); 
-    
-      res.send(user);
+        const user = req.user; 
+      res.send({user});
     } catch (err) {
       res.status(500).send({ message: err.message });
     }
   },
   update: async (req, res) => {
     try {
-      const { name, username, email, password, avatar, background } = req.body;
-      if (!name && !email && !password ) {
+      const { avatar, background , bio} = req.body;
+      if (!avatar && !background && !bio) {
         return res.status(400).send({ message: "Submit at least one field for update" });
       }
 
@@ -67,19 +67,30 @@ const userController = {
 
       await userService.updateService(
         userId,
-        name,
-        username,
-        email,
-        password,
         avatar,
-        background
+        background,
+        bio
       );
+      const user = await userService.findByIdService(userId);
+      console.log(userId, user);
 
       res.send({ message: "User successfully updated" });
     } catch (err) {
       res.status(500).send({ message: err.message });
     }
   },
+  delete: async (req, res) => {
+    try {
+      const user = req.user; 
+      if (!user) {
+        return res.status(401).send({ message: "Unauthorized" });
+      }
+      await userService.deleteService(user.id);
+      
+    res.send({message: "User successfully deleted" });
+  } catch (err) {
+    res.status(500).send({ message: err.message });
+  }},
 };
 
 export default userController;

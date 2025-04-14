@@ -4,9 +4,10 @@ import authMiddleware from "../middlewares/auth.middleware.js";
 
 const routes = Router()
 
-routes.post("/",userController.create)
-routes.get("/",userController.findAll)
-routes.get("/:id",userController.findById)
-routes.patch("/:id",authMiddleware, userController.update)
+routes.post("/create",userController.create)
+routes.get("/all",userController.findAll)
+routes.get("/",authMiddleware,userController.findById)
+routes.patch("/",authMiddleware, userController.update)
+routes.patch("/delete",authMiddleware,userController.delete)
 
 export default routes

@@ -66,8 +66,8 @@ body {
 
 
 .cta-button {
-    background-color: #2ec47e;
-    color: #fff;
+    background-color: #8DF7E2;
+    color: #311452;
     font-size: 16px;
     padding: 10px 20px;
     border: none;
@@ -81,13 +81,13 @@ body {
 
 .cta-button:hover {
     background-color: #2f2841;
-    color: #2ec47e;
+    color: #8DF7E2;
 }
 
 
 
 #main_card {
-    background-color: rgb(46, 242, 203);
+    background-color: #8DF7E2;
     padding: 50px 20px;
     text-align: center;
 }
