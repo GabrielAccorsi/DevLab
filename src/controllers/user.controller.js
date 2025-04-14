@@ -81,16 +81,30 @@ const userController = {
   },
   delete: async (req, res) => {
     try {
-      const user = req.user; 
+      let userId = req.user?.id; 
       if (!user) {
         return res.status(401).send({ message: "Unauthorized" });
       }
-      await userService.deleteService(user.id);
-      
-    res.send({message: "User successfully deleted" });
+      await userService.deleteService(userId);
+      user = await userService.findByIdService(userId);
+      console.log(user);
+    res.send({message: "User successfully deleted" , user});
   } catch (err) {
     res.status(500).send({ message: err.message });
   }},
+  delete1: async (req, res) => {
+    try {
+      const userId = req.user?.id; 
+      if (!userId) {
+        return res.status(401).send({ message: "Unauthorized" });
+      }
+
+      await userService.deleteService1(userId);
+      res.send({ message: "User successfully deleted" });
+    } catch (err) {
+      res.status(500).send({ message: err.message });
+    }
+  }
 };
 
 export default userController;

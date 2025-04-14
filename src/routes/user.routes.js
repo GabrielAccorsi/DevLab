@@ -9,5 +9,6 @@ routes.get("/all",userController.findAll)
 routes.get("/",authMiddleware,userController.findById)
 routes.patch("/",authMiddleware, userController.update)
 routes.patch("/delete",authMiddleware,userController.delete)
+// routes.delete("/delete",authMiddleware,userController.delete2)
 
 export default routes

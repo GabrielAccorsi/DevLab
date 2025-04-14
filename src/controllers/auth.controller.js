@@ -7,7 +7,7 @@ const login = async (req, res) => {
   try {
     const user = await loginService(email);
 
-    if (!user) {
+    if (!user || user.status === "inativo") {
       return res.status(404).send({ message: "Usuário não encontrado" });
     }
 

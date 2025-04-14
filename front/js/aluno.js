@@ -74,8 +74,9 @@ const fecharModal = () => {
 const confirmarExclusao = async () => {
   const auth = JSON.parse(localStorage.getItem("auth"));
   const token = auth?.token || auth;
-  const response = await fetch("http://localhost:3000/user", {
-    method: "GET",
+
+  const response = await fetch("http://localhost:3000/user/delete", {
+    method: "PATCH",
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -88,33 +89,17 @@ const confirmarExclusao = async () => {
   }
 
   const { user } = await response.json();
-  if (user) {
-    const userId = user.uid;
 
-    firebase
-      .database()
-      .ref("users/" + userId)
-      .remove()
-      .then(() => {
-        return user.delete();
-      })
-      .then(() => {
-        showAlert("Conta excluída com sucesso!");
-        fecharModal();
-      })
-      .catch((error) => {
-        if (error.code === "auth/requires-recent-login") {
-          showAlert("Por favor, faça login novamente para excluir sua conta.");
-        } else {
-          showAlert("Erro ao excluir a conta. Tente novamente.");
-        }
-        fecharModal();
-      });
+  if (user.status === "inativo") {
+    showAlert("Sua conta foi excluída com sucesso!");
+    localStorage.removeItem("auth");
+    fecharModal();
   } else {
     showAlert("Erro: Usuário não encontrado.");
     fecharModal();
   }
 };
+
 
 const showAlert = (message) => {
   const alertBox = document.getElementById("alertBox");

@@ -49,6 +49,16 @@ const deleteService = async (id) => {
 
   return null;
 }
+const deleteService1 = async (id) => {
+  const index = Users.findIndex(user => user.id === parseInt(id));
+
+  if (index !== -1) {
+    const deletedUser = Users.splice(index, 1); 
+    return deletedUser[0]; 
+  }
+
+  return null;
+};
 
 
 const userService = {
@@ -58,6 +68,7 @@ const userService = {
   updateService,
   findByEmailService,
   deleteService,
+  deleteService1
 };
 
 export default userService;
