@@ -5,7 +5,9 @@ let Users = [
     email: "carlos@email.com",
     password: "1234",
     avatar: "",
-    background: "",
+    status: "",
+    bio: "",
+    tipo: "aluno"
   },
   {
     id: 2,
@@ -13,7 +15,9 @@ let Users = [
     email: "rafael@gmail.com",
     password: "senha123",
     avatar: "",
-    background: "",
+    status: "",
+    bio: "",
+    tipo: "adm"
   },
 ];
  export default Users
