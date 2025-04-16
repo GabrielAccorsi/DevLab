@@ -48,14 +48,17 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
 
     // Foto de perfil
-    const profileImg = document.querySelector(".profile-img");
-    if (profileImg) {
-      const userPhotoURL = user.avatar || userData.photoURL;
-      if (userPhotoURL) {
-        profileImg.src = userPhotoURL;
-      } else {
-        profileImg.src = "imagens/entrar.png";
-      }
+    const userPhotoURL = user.avatar;
+    const profileImg = document.querySelector(".profile-img2");
+if (userPhotoURL && profileImg) {
+  if (!userPhotoURL.startsWith("data:image")) {
+    profileImg.src = `data:image/png;base64,${userPhotoURL}`;
+  } else {
+    profileImg.src = userPhotoURL;
+  }
+} else {
+  profileImg.src = "imagens/entrar.png"; 
+
     }
   }
 });

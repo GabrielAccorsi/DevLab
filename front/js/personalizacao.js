@@ -122,10 +122,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   
       const data = await response.json();
   
-      if (data.success || response.ok) {
-        window.location.href = "pagina_aluno.html";
-
-      
+      if (response.ok && data.user) {
+        if (data.user.tipo === "adm") {
+          window.location.href = "pagina_adm.html";
+        } else {
+          window.location.href = "pagina_aluno.html";
+        }
       } else {
         alert("Erro ao atualizar perfil. Tente novamente.");
       }

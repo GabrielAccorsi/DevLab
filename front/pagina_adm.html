@@ -9,39 +9,19 @@
     <link rel="stylesheet" href="css/profile-dropdown-menu.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
     <link rel="stylesheet" href="css/adm.css">
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <script src="js/firebase_conf.js"></script>
-
+ 
     <title>Página do ADM</title>
   
     </head>
     <body>
       <a id="linkIndex" href="tutorialteste.html" style="display: none;"></a>
     
-        <nav class="navbar">
-            <div class="nav_logo">
-              <a href="index.html"> <img src="imagens/tema_claro.png" alt="Logo" class="logo-img"> </a>
-            </div>
-            <ul class="nav_links">
-                <li><a href="index.html">Início</a></li>
-                <li><a href="tutorial.html">Tutoriais</a></li>
-                <li><a href="teste-ferramenta.html">Exercícios</a></li>
-                <li><a href="forum.html">Fórum</a></li>
-                <li><a href="sobre.html">Sobre Nós</a></li>
-                <li><a href="mensagens.html">Contato</a></li>
-            </ul>
-            <div class="hamburger-menu" onclick="toggleMenu()">
-                <div class="bar"></div>
-                <div class="bar"></div>
-                <div class="bar"></div>
-            </div>
-        </nav>
+      <nav class="navbar" id="navbar"></nav>
+
     
         <div class="container">
             <aside class="sidebar">
-                <img class="profile-img" src="imagens/entrar.png" alt="foto usuario">
+                <img class="profile-img2" src="imagens/entrar.png" alt="foto usuario">
                 <h2 id="usuario"></h2>
                 <p class="id">Professor</p>
                 <button class="edit-button">Editar perfil</button>
@@ -109,73 +89,10 @@
        </div>
     </div>
     
-        <script src="js/menu-drop.js"></script>
-        <script>
-        // preencher os dados do adm que logou
-       firebase.auth().onAuthStateChanged(user => { 
-       if (user) {
-        const userName = user.displayName || 'Usuário DevLab'
-        const userEmail = user.email
-
-        // exibir nome 
-        const usuarioElements = document.querySelectorAll('#usuario')
-        usuarioElements.forEach(element => {
-            element.innerText = userName
-        })
-
-        // exibir email
-        const emailElement = document.getElementById('email_usuario')
-        if (emailElement) {
-            emailElement.innerText = userEmail
-            emailElement.href = `mailto:${userEmail}`
-        }
-
-        // foto perfil 
-        const profileImg = document.querySelector('.profile-img')
-        if (profileImg) {
-            const userPhotoURL = user.photoURL || 'imagens/entrar.png'
-            profileImg.style.backgroundImage = `url('${userPhotoURL}')`
-        }
-
-        dbRef.once('value', snapshot => {
-            const userData = snapshot.val()
-            if (userData) {
-                // nome do usuário, puxa do banco de dados
-                const dbUserName = userData.nome || 'Usuário DevLab'
-                const usuarioElements = document.querySelectorAll('#usuario')
-                usuarioElements.forEach(element => {
-                    element.innerText = dbUserName
-                })
-            }
-          })
-        }})
-      
-              // confirmação de exclusão
-              const excluirConta = () => {
-        const confirmModal = document.getElementById("confirmModal")
-        confirmModal.style.display = "flex" }
-
-        const fecharModal = () => {
-        const confirmModal = document.getElementById("confirmModal")
-        confirmModal.style.display = "none"}
-
-        // confirmar a exclusão
-        const confirmarExclusao = () => {
-        console.log("Iniciando a exclusão da conta...")
-        }
         
-        // sucesso ou erro
-        const showAlert = (message) => {
-        const alertBox = document.getElementById("alertBox")
-        const alertMessage = document.getElementById("alertMessage")
-        alertMessage.textContent = message
-        alertBox.style.display = "flex"}
+        <script>
 
-        document.getElementById("alertOkButton").addEventListener("click", () => {
-        document.getElementById("alertBox").style.display = "none"
-        window.location.href = "cadastro.html"
-        })
-
+      
        // menu
        document.addEventListener('DOMContentLoaded', function () {
         const hamburgerMenu = document.querySelector('.hamburger-menu');
@@ -197,4 +114,7 @@
       }
       </script>
     </body>
+    <script src="js/aluno.js" defer></script>
+    <script src="js/chamar_html.js" defer></script>
+    <script src="js/menu-drop.js"></script>
     </html>

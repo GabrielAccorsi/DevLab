@@ -74,7 +74,7 @@ const userController = {
       const user = await userService.findByIdService(userId);
       console.log(userId, user);
 
-      res.send({ message: "User successfully updated" });
+      res.send({ message: "User successfully updated", user });
     } catch (err) {
       res.status(500).send({ message: err.message });
     }
@@ -82,11 +82,11 @@ const userController = {
   delete: async (req, res) => {
     try {
       let userId = req.user?.id; 
-      if (!user) {
+      if (!userId) {
         return res.status(401).send({ message: "Unauthorized" });
       }
       await userService.deleteService(userId);
-      user = await userService.findByIdService(userId);
+     const user = await userService.findByIdService(userId);
       console.log(user);
     res.send({message: "User successfully deleted" , user});
   } catch (err) {

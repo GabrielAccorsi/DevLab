@@ -18,31 +18,12 @@
   </head>
   <body>
     <a id="linkIndex" href="tutorialteste.html" style="display: none"></a>
+    <nav class="navbar" id="navbar"></nav>
 
-    <nav class="navbar">
-      <div class="nav_logo">
-        <a href="index.html">
-          <img src="imagens/tema_claro.png" alt="Logo" class="logo-img" />
-        </a>
-      </div>
-      <ul class="nav_links">
-        <li><a href="index.html">Início</a></li>
-        <li><a href="tutorial.html">Tutoriais</a></li>
-        <li><a href="teste-ferramenta.html">Exercícios</a></li>
-        <li><a href="forum.html">Fórum</a></li>
-        <li><a href="sobre.html">Sobre Nós</a></li>
-        <li><a href="contato.html">Contato</a></li>
-      </ul>
-      <div class="hamburger-menu" onclick="toggleMenu()">
-        <div class="bar"></div>
-        <div class="bar"></div>
-        <div class="bar"></div>
-      </div>
-    </nav>
 
     <div class="container">
       <aside class="sidebar">
-        <img class="profile-img" src="imagens/entrar.png" alt="foto usuario" />
+        <img class="profile-img2" />
         <h2 id="usuario"></h2>
         <p class="id">FuturoDev</p>
         <button class="edit-button">Editar perfil</button>
@@ -130,7 +111,9 @@
     </div>
 
     <script src="js/menu-drop.js"></script>
-    <script src="js/aluno.js"></script>
+    <script src="js/aluno.js" ></script>
+    <script src="js/chamar_html.js"></script>
+    <script src="js/menu-drop.js"></script>
     <script>
       // menu
       document.addEventListener("DOMContentLoaded", function () {
