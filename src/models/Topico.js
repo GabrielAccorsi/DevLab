@@ -1,10 +1,10 @@
 // src/models/Topico.js
 import pool from '../database/config.js';
 import Resposta from './Resposta.js';
+import RespostaReply from './RespostaReply.js'; // Adicionado para usar o modelo de replies
 import Tag from './Tag.js';
 
 class Topico {
-  
   static async findAll(filtro = 'top') {
     let orderBy;
     switch (filtro) {
@@ -60,7 +60,6 @@ class Topico {
     }
   }
 
-
   static async findById(id, userId) {
     try {
       console.log(`Iniciando Topico.findById para id: ${id}, userId: ${userId}`);
@@ -89,14 +88,33 @@ class Topico {
         [id]
       );
       console.log('Respostas encontradas:', respostasQuery.rows.length);
+      console.log('Respostas completas:', JSON.stringify(respostasQuery.rows, null, 2)); // Log detalhado das respostas
+  
+      // Buscar todas as replies para todas as respostas do tópico de uma vez
+      const respostaIds = respostasQuery.rows.map((r) => r.id);
+      let repliesByRespostaId = {};
+      if (respostaIds.length > 0) {
+        const repliesQuery = await pool.query(`
+          SELECT rr.*, u.nome_usr AS user_nome
+          FROM respostas_replies rr
+          JOIN dev_lab_usuarios u ON rr.user_id = u.id_usr
+          WHERE rr.resposta_id IN (${respostaIds.map((_, i) => `$${i + 1}`).join(',')})
+        `, respostaIds);
+        console.log('Replies encontradas:', JSON.stringify(repliesQuery.rows, null, 2)); // Log detalhado das replies
+        repliesByRespostaId = repliesQuery.rows.reduce((acc, reply) => {
+          if (!acc[reply.resposta_id]) {
+            acc[reply.resposta_id] = [];
+          }
+          acc[reply.resposta_id].push(reply);
+          return acc;
+        }, {});
+      }
+  
       const respostas = await Promise.all(
         respostasQuery.rows.map(async (resposta) => {
           console.log(`Buscando replies para resposta id: ${resposta.id}`);
-          const repliesQuery = await pool.query(
-            'SELECT re.*, u.nome_usr AS user_nome FROM replies re JOIN dev_lab_usuarios u ON re.user_id = u.id_usr WHERE re.resposta_id = $1',
-            [resposta.id]
-          );
-          console.log(`Replies para resposta id ${resposta.id}:`, repliesQuery.rows);
+          const replies = repliesByRespostaId[resposta.id] || [];
+          console.log(`Replies para resposta id ${resposta.id}:`, replies);
           console.log(`Buscando likes para resposta id: ${resposta.id}`);
           let likes = 0;
           let liked = false;
@@ -122,10 +140,11 @@ class Topico {
             user_avatar: resposta.user_avatar,
             likes,
             liked,
-            replies: repliesQuery.rows,
+            replies,
           };
         })
       );
+  
       console.log('Buscando likes para tópico id:', id);
       let likes = 0;
       let liked = false;
@@ -145,6 +164,7 @@ class Topico {
       } catch (err) {
         console.warn(`Erro ao buscar likes do tópico id ${id}:`, err.message);
       }
+  
       console.log('Buscando avaliações para tópico id:', id);
       let rating = 0;
       let rating_count = 0;
@@ -166,6 +186,7 @@ class Topico {
       } catch (err) {
         console.warn(`Erro ao buscar avaliações do tópico id ${id}:`, err.message);
       }
+  
       return {
         id: row.id,
         user_id: row.user_id,
@@ -192,7 +213,7 @@ class Topico {
       throw error;
     }
   }
-
+  
   static async findByUserId(userId) {
     try {
       const { rows } = await pool.query(`
@@ -234,61 +255,38 @@ class Topico {
   }
 
   static async create({ user_id, categoria_id, titulo, descricao, tags }) {
-  try {
-    const result = await pool.query(
-      'INSERT INTO topicos (user_id, categoria_id, titulo, descricao, ativo, status) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
-      [user_id, categoria_id, titulo, descricao, true, 'aberto']
-    );
-    const topicoId = result.rows[0].id;
+    try {
+      const result = await pool.query(
+        'INSERT INTO topicos (user_id, categoria_id, titulo, descricao, ativo, status) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
+        [user_id, categoria_id, titulo, descricao, true, 'aberto']
+      );
+      const topicoId = result.rows[0].id;
 
-    if (tags && tags.length > 0) {
-      for (const tagName of tags) {
-        // Buscar ou criar a tag
-        let tagResult = await pool.query('SELECT id FROM tags WHERE nome = $1', [tagName]);
-        let tagId;
-        if (tagResult.rows.length === 0) {
-          tagResult = await pool.query('INSERT INTO tags (nome) VALUES ($1) RETURNING id', [tagName]);
-          tagId = tagResult.rows[0].id;
-        } else {
-          tagId = tagResult.rows[0].id;
+      if (tags && tags.length > 0) {
+        for (const tagName of tags) {
+          // Buscar ou criar a tag
+          let tagResult = await pool.query('SELECT id FROM tags WHERE nome = $1', [tagName]);
+          let tagId;
+          if (tagResult.rows.length === 0) {
+            tagResult = await pool.query('INSERT INTO tags (nome) VALUES ($1) RETURNING id', [tagName]);
+            tagId = tagResult.rows[0].id;
+          } else {
+            tagId = tagResult.rows[0].id;
+          }
+          // Associar a tag ao tópico
+          await pool.query(
+            'INSERT INTO topico_tags (topico_id, tag_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+            [topicoId, tagId]
+          );
         }
-        // Associar a tag ao tópico
-        await pool.query(
-          'INSERT INTO topico_tags (topico_id, tag_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
-          [topicoId, tagId]
-        );
       }
+
+      return { id: topicoId };
+    } catch (error) {
+      console.error('Erro em Topico.create:', error.message);
+      throw error;
     }
-
-    return { id: topicoId };
-  } catch (error) {
-    console.error('Erro em Topico.create:', error.message);
-    throw error;
   }
-}
-  // static async create({ user_id, categoria_id, titulo, descricao, tags }) {
-  //   try {
-  //     const result = await pool.query(
-  //       'INSERT INTO topicos (user_id, categoria_id, titulo, descricao, ativo, status) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
-  //       [user_id, categoria_id, titulo, descricao, true, 'aberto']
-  //     );
-  //     const topicoId = result.rows[0].id;
-
-  //     if (tags && tags.length > 0) {
-  //       for (const tagId of tags) {
-  //         await pool.query(
-  //           'INSERT INTO topico_tags (topico_id, tag_id) VALUES ($1, $2)',
-  //           [topicoId, tagId]
-  //         );
-  //       }
-  //     }
-
-  //     return { id: topicoId };
-  //   } catch (error) {
-  //     console.error('Erro em Topico.create:', error);
-  //     throw error;
-  //   }
-  // }
 
   static async update(id, { titulo, descricao, categoria_id, tags, ativo, status }) {
     try {
