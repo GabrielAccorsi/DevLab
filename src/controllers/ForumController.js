@@ -213,6 +213,14 @@ static async getTopicoById(req, res) {
     const { topico_id, conteudo } = req.body;
     const user_id = req.user.id;
     try {
+      // Verificar se já existe uma resposta idêntica
+      const existingResposta = await pool.query(
+        'SELECT 1 FROM respostas WHERE topico_id = $1 AND user_id = $2 AND conteudo = $3',
+        [topico_id, user_id, conteudo]
+      );
+      if (existingResposta.rows.length > 0) {
+        return res.status(400).json({ error: 'Resposta idêntica já existe' });
+      }
       const resposta = await Resposta.create({ topico_id, user_id, conteudo });
       res.status(201).json(resposta);
     } catch (error) {
@@ -220,11 +228,30 @@ static async getTopicoById(req, res) {
       res.status(500).json({ error: 'Erro ao criar resposta', details: error.message });
     }
   }
+  // static async createResposta(req, res) {
+  //   const { topico_id, conteudo } = req.body;
+  //   const user_id = req.user.id;
+  //   try {
+  //     const resposta = await Resposta.create({ topico_id, user_id, conteudo });
+  //     res.status(201).json(resposta);
+  //   } catch (error) {
+  //     console.error('Erro ao criar resposta:', error);
+  //     res.status(500).json({ error: 'Erro ao criar resposta', details: error.message });
+  //   }
+  // }
 
   static async createReply(req, res) {
     const { resposta_id, conteudo } = req.body;
     const user_id = req.user.id;
     try {
+      // Verificar se já existe um reply idêntico
+      const existingReply = await pool.query(
+        'SELECT 1 FROM respostas_replies WHERE resposta_id = $1 AND user_id = $2 AND conteudo = $3',
+        [resposta_id, user_id, conteudo]
+      );
+      if (existingReply.rows.length > 0) {
+        return res.status(400).json({ error: 'Reply idêntico já existe' });
+      }
       const reply = await RespostaReply.create({ resposta_id, user_id, conteudo });
       res.status(201).json(reply);
     } catch (error) {
@@ -232,6 +259,17 @@ static async getTopicoById(req, res) {
       res.status(500).json({ error: 'Erro ao criar reply', details: error.message });
     }
   }
+  // static async createReply(req, res) {
+  //   const { resposta_id, conteudo } = req.body;
+  //   const user_id = req.user.id;
+  //   try {
+  //     const reply = await RespostaReply.create({ resposta_id, user_id, conteudo });
+  //     res.status(201).json(reply);
+  //   } catch (error) {
+  //     console.error('Erro ao criar reply:', error);
+  //     res.status(500).json({ error: 'Erro ao criar reply', details: error.message });
+  //   }
+  // }
 
   static async likeTopico(req, res) {
     const { id } = req.params;
